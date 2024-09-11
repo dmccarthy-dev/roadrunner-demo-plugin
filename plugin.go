@@ -49,15 +49,10 @@ func (p *Plugin) Init(cfg Configurer, log Logger) error {
 
 func (p *Plugin) Serve() chan error {
 	const op = errors.Op(PluginName)
-	errCh := make(chan error, 1)
 
 	p.ticker = time.NewTicker(10 * time.Second)
 
-	err := p.DoSomeWork()
-	if err != nil {
-		errCh <- errors.E(op, err)
-		return errCh
-	}
+	go p.DoSomeWork()
 
 	return nil
 }
@@ -68,7 +63,7 @@ func (p *Plugin) Stop(_ context.Context) error {
 	return nil
 }
 
-func (p *Plugin) DoSomeWork() error {
+func (p *Plugin) DoSomeWork() {
 	p.logger.Info("DoSomeWork")
 	for {
 		select {
