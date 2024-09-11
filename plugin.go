@@ -69,7 +69,7 @@ func (p *Plugin) DoSomeWork() {
 		select {
 		case <-p.ticker.C:
 			// Code to execute every 10 seconds
-			p.logger.Info("DoSomeWork")
+			p.logger.Info("DoSomeWork " + p.cfg.Message)
 		}
 	}
 }
