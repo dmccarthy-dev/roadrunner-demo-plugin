@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/roadrunner-server/errors"
 	"go.uber.org/zap"
+	"time"
 )
 
 const PluginName = "roadrunner_demo_plugin"
@@ -11,6 +12,7 @@ const PluginName = "roadrunner_demo_plugin"
 type Plugin struct {
 	cfg    *Config
 	logger *zap.Logger
+	ticker *time.Ticker
 }
 
 type Configurer interface {
@@ -49,6 +51,8 @@ func (p *Plugin) Serve() chan error {
 	const op = errors.Op(PluginName)
 	errCh := make(chan error, 1)
 
+	p.ticker = time.NewTicker(10 * time.Second)
+
 	err := p.DoSomeWork()
 	if err != nil {
 		errCh <- errors.E(op, err)
@@ -60,10 +64,17 @@ func (p *Plugin) Serve() chan error {
 
 func (p *Plugin) Stop(_ context.Context) error {
 	p.logger.Info("Stopping plugin")
+	p.ticker.Stop()
 	return nil
 }
 
 func (p *Plugin) DoSomeWork() error {
 	p.logger.Info("DoSomeWork")
-	return nil
+	for {
+		select {
+		case <-p.ticker.C:
+			// Code to execute every 10 seconds
+			p.logger.Info("DoSomeWork")
+		}
+	}
 }
